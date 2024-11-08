@@ -27,8 +27,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Tidak perlu mengirim role, karena sudah diatur otomatis di backend
-      await axios.post("http://localhost:5100/register", formData);
+      await axios.post(`${process.env.REACT_APP_URL}/register`, formData);
       setSuccess("Surveyor registered successfully");
       setError("");
       setTimeout(() => navigate("/login"), 2000);

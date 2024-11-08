@@ -13,7 +13,7 @@ import DataRusun from "./pages/DataRusun";
 import PetaPerumahan from "./pages/PetaPerumahan"; 
 import InformasiDasarHukum from "./pages/InformasiDasarHukum"; 
 import ResetPassword from "./components/ResetPassword";
-
+import { UploadFoto } from "./components/UploadFoto";
 
 const App = () => {
   return (
@@ -34,6 +34,7 @@ const App = () => {
         <Route path="/questionnaire" element={<QuestionnaireForm />} />
         <Route path="/recap" element={<DataRecapComponent />} />
         <Route path="/questionnaire/:id" element={<QuestionnaireForm />} />
+        <Route path="/upload" element={<UploadFoto />} />
       </Routes>
       <Footer />
     </Router>

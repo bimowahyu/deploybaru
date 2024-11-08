@@ -15,8 +15,7 @@ function ResetPassword() {
     }
 
     try {
-      const endpoint = "http://localhost:3000/api/auth/reset-password";
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${process.env.REACT_APP_URL}/resetpassword`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

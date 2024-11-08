@@ -82,33 +82,33 @@ const QuestionnaireForm = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  useEffect(() => {
-    console.log("ID yang diterima:", id); 
-    if (id) {
-      axios
-        .get(`http://localhost:5100/getquestionnaires/${id}`, { withCredentials: true })
-        .then((response) => {
-          if (response.status === 200) {
-            const questionnaireData = {
-              ...response.data,
-              kategori: response.data.kategori || "",
-              score: response.data.score || 0,
-            };
-            setFormData(questionnaireData);
-          } else {
-            console.error("Gagal mengambil data:", response.statusText);
-          }
-        })
-        .catch((error) => console.error("Error mengambil data:", error));
-    }
-  }, [id]);
+  // useEffect(() => {
+  //   console.log("ID yang diterima:", id); 
+  //   if (id) {
+  //     axios
+  //       .get(`${process.env.REACT_APP_URL}/getquestionnaires/${id}`, { withCredentials: true })
+  //       .then((response) => {
+  //         if (response.status === 200) {
+  //           const questionnaireData = {
+  //             ...response.data,
+  //             kategori: response.data.kategori || "",
+  //             score: response.data.score || 0,
+  //           };
+  //           setFormData(questionnaireData);
+  //         } else {
+  //           console.error("Gagal mengambil data:", response.statusText);
+  //         }
+  //       })
+  //       .catch((error) => console.error("Error mengambil data:", error));
+  //   }
+  // }, [id]);
   
   
 
   useEffect(() => {
     const fetchSurveyorName = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/me", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/me`, {
           withCredentials: true, 
         });
   
@@ -243,14 +243,24 @@ const QuestionnaireForm = () => {
   };
 
   // Fungsi untuk menangani perubahan input
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  
+  //   // Update formData dengan nilai baru
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [name]: value,
+  //   }));
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
-    // Update formData dengan nilai baru
-    setFormData((prevData) => ({
+    setFormData ((prevData) => ({
       ...prevData,
       [name]: value,
+      // Kosongkan titikKoordinatRumah jika manualTitikKoordinatRumah diisi, dan sebaliknya
+      ...(name === "manualTitikKoordinatRumah" ? { titikKoordinatRumah: "" } : {}),
+      ...(name === "titikKoordinatRumah" ? { manualTitikKoordinatRumah: "" } : {}),
     }));
+  
   
     // Validasi untuk nomorKK dan nomorKTP agar 16 digit
     if (name === "nomorKK" || name === "nomorKTP") {
@@ -341,7 +351,7 @@ const QuestionnaireForm = () => {
 
     // Validasi form
     if (!validateForm()) {
-      console.log("Form is not valid");
+      console.log(errorMessage);
       return;
     }
 
@@ -357,7 +367,7 @@ const QuestionnaireForm = () => {
     try {
       // Tentukan metode berdasarkan apakah `id` ada atau tidak
       const method = id ? "PATCH" : "POST";
-      const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5100";
+      const BASE_URL = process.env.REACT_APP_URL
       const url = id ? `${BASE_URL}/updatequestionnaires/${id}` : `${BASE_URL}/createquestionnaires`;
       
       // Kirim data tanpa `kategori` dan `score`

@@ -1,42 +1,30 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
-import ReCAPTCHA from "react-google-recaptcha";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const recaptchaRef = useRef(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const recaptchaValue = recaptchaRef.current.getValue();
-    if (!recaptchaValue) {
-      alert("Anda harus memverifikasi bahwa Anda bukan robot.");
-      return;
-    }
-
     try {
-      const endpoint = "http://localhost:5100/login";
-
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${process.env.REACT_APP_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-         body: JSON.stringify({ username, password, recaptcha: recaptchaValue }),
-       // body: JSON.stringify({ username, password }),
-        credentials: "include"  
+        body: JSON.stringify({ username, password }),
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        
         if (data.role === "admin") {
           navigate("/admin/dashboard");
         } else if (data.role === "surveyor") {
@@ -78,9 +66,6 @@ function Login() {
             </button>
           </div>
         </label>
-        <div className="recaptcha-container">
-          <ReCAPTCHA ref={recaptchaRef} sitekey="6LdFxh8qAAAAAO_NZ3p7scn70POdyee9KqSUpomD" onChange={() => {}} />
-        </div>
         <div className="extra-links">
           <a href="/reset-password">Lupa Password?</a>
         </div>

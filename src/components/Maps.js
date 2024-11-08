@@ -17,7 +17,7 @@ function Maps({ selectedItem }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5100/maps");
+        const response = await fetch(`${process.env.REACT_APP_URL}/maps`);
         const result = await response.json();
         setData(result);
       } catch (error) {

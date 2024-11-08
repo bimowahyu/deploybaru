@@ -8,18 +8,19 @@ const MyNavbar = () => {
 
   return (
     <Navbar bg="primary" variant="dark" expand="lg" className="p-3">
-      <Navbar.Brand href="#" style={{ color: 'white' }}>Dinas Perumahan dan Permukiman</Navbar.Brand>
+      {/* <Navbar.Brand href="#" style={{ color: 'white' }}>Dinas Perumahan dan Permukiman</Navbar.Brand> */}
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="ml-auto">
+        <Nav className="ms-auto"> {/* Updated from ml-auto to ms-auto */}
           <Nav.Link href="/recap" style={{ color: 'white' }}>Rekapitulasi</Nav.Link>
           <Nav.Link href="/admin/dashboard" style={{ color: 'white' }}>Dashboard</Nav.Link>
           <Nav.Link href="/questionnaire" style={{ color: 'white' }}>Input Data</Nav.Link>
+          <Nav.Link href="/upload" style={{ color: 'white' }}>Upload Foto</Nav.Link>
           <button
-            className="btn btn-danger ml-2"
+            className="btn btn-danger ms-2" // Adjusted from ml-2 to ms-2
             onClick={async () => {
               try {
-                await axios.delete("http://localhost:5100/logout", { withCredentials: true });
+                await axios.delete(`${process.env.REACT_APP_URL}/logout`, { withCredentials: true });
                 sessionStorage.clear();
                 navigate("/login"); 
               } catch (error) {

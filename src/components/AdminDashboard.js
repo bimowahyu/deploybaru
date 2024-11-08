@@ -6,6 +6,7 @@ import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 // import "./SurveyorDashboard.css";
 import '../pages/SurveyorDashboard.css'
+import MyNavbar from "../map/Navbar";
 
 // Registrasi komponen Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -22,7 +23,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchRekapData = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/filter", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/filter`, {
           withCredentials: true
         });
   
@@ -47,7 +48,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/me", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/me`, {
           withCredentials: true
         });
   
@@ -154,7 +155,7 @@ function AdminDashboard() {
                   onClick={async () => {
                     try {
                       
-                      await axios.delete("http://localhost:5100/logout",{ withCredentials: true });
+                      await axios.delete(`${process.env.REACT_APP_URL}/logout`,{ withCredentials: true });
                       sessionStorage.clear(); 
                       navigate("/login");
                     } catch (error) {

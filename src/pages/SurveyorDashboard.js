@@ -21,7 +21,7 @@ function SurveyorDashboard() {
   useEffect(() => {
     const fetchRekapData = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/filter", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/filter`, {
           withCredentials: true
         });
   
@@ -46,7 +46,7 @@ function SurveyorDashboard() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/me", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/me`, {
           withCredentials: true
         });
   
@@ -153,7 +153,7 @@ function SurveyorDashboard() {
                   onClick={async () => {
                     try {
                       
-                      await axios.delete("http://localhost:5100/logout",{ withCredentials: true });
+                      await axios.delete(`${process.env.REACT_APP_URL}/logout`,{ withCredentials: true });
                       sessionStorage.clear(); 
                       navigate("/login");
                     } catch (error) {

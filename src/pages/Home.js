@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import stylesheet for carousel
-import "./Home.css"; //
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // Carousel CSS
+import "./Home.css"; // Custom styling
 
 function Home() {
   return (
@@ -28,11 +28,11 @@ function Home() {
         </Carousel>
         <div className="overlay">
           <img src="/images/logo.png" alt="Logo Aplikasi" className="home-logo" />
-          <h1 className="app-title">Sistem Informasi Pendataan Kualitas Rumah</h1>
+          <h1 className="app-title">Sistem Informasi Pendataan Kualitas Rumah Sumbawa Barat (SIP-AKURAT)</h1>
         </div>
       </div>
 
-      {/* Konten tombol */}
+      {/* Button Links */}
       <div className="home-text-container">
         <Link to="/data-perumahan" className="home-button data-perumahan-button">
           <i className="home-icon">🏠</i> Data Perumahan

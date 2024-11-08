@@ -42,6 +42,8 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
   const [desaOptions, setDesaOptions] = useState([]);
   const [expandedRows, setExpandedRows] = useState([]);
   const [username, setUsername] = useState("");
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState('');
   const [filters, setFilters] = useState({
     kecamatan: "",
     desaKelurahan: "",
@@ -60,7 +62,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/getquestionnaires", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/getquestionnaires`, {
           withCredentials: true 
         });
   
@@ -86,7 +88,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
   }, [onStatisticsUpdate]);
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:5100/getquestionnaires", {
+      const response = await axios.get(`${process.env.REACT_APP_URL}/getquestionnaires`, {
         withCredentials: true,
       });
 
@@ -117,7 +119,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
   // Delete data function
   const deleteData = async (id) => {
     try {
-      await axios.delete(`http://localhost:5100/delete/${id}`, { withCredentials: true });
+      await axios.delete(`${process.env.REACT_APP_URL}/delete/${id}`, { withCredentials: true });
       alert("Data berhasil dihapus.");
 
       // Refresh data after deletion
@@ -150,7 +152,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
   useEffect(() => {
     const fetchSurveyorName = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/me", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/me`, {
           withCredentials: true,
         });
   
@@ -242,7 +244,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
     } else {
       // Ambil detail berdasarkan ID
       try {
-        const response = await fetch(`http://localhost:5100/maps/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_URL}/maps/${id}`);
         const result = await response.json();
         setSelectedItem(result);
         setExpandedRows([...expandedRows, index]);
@@ -287,17 +289,26 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
   //   const { name, value } = e.target;
   //   setSelectedItem({ ...selectedItem, [name]: value });
   // };
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setSelectedItem(prevItem => ({
+  //     ...prevItem,
+  //     [name]: value
+  //   }));
+  // };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSelectedItem(prevItem => ({
-      ...prevItem,
-      [name]: value
+    setSelectedItem((prevData) => ({
+      ...prevData,
+      [name]: value,
+      // Kosongkan titikKoordinatRumah jika manualTitikKoordinatRumah diisi, dan sebaliknya
+      ...(name === "manualTitikKoordinatRumah" ? { titikKoordinatRumah: "" } : {}),
+      ...(name === "titikKoordinatRumah" ? { manualTitikKoordinatRumah: "" } : {}),
     }));
   };
   const handleFormSubmit = async () => {
     try {
-      // await axios.put(`http://localhost:5100/updatequestionnaire/${selectedItem.id}`, selectedItem, {
-        await axios.put(`http://localhost:5100/updatequestionnaires/${selectedItem.id}`, selectedItem, {
+        await axios.put(`${process.env.REACT_APP_URL}/updatequestionnaires/${selectedItem.id}`, selectedItem, {
         withCredentials: true,
         
       });
@@ -308,6 +319,27 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
       console.error("Error updating data:", error);
     }
   };
+  // const handleGetCoordinates = () => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         const { latitude, longitude } = position.coords;
+  //         setSelectedItem((prevData) => ({
+  //           ...prevData,
+  //           titikKoordinatRumah: `${latitude}, ${longitude}`,
+  //           manualTitikKoordinatRumah: "", // Kosongkan input manual jika koordinat otomatis diisi
+  //         }));
+  //       },
+  //       (error) => {
+  //         setErrorMessage("Error getting coordinates: " + error.message);
+  //         setModalOpen(true); // Tampilkan modal error
+  //       }
+  //     );
+  //   } else {
+  //     setErrorMessage("Geolocation is not supported by this browser.");
+  //     setModalOpen(true); // Tampilkan modal error
+  //   }
+  // };
   const handleGetCoordinates = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -348,7 +380,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
     formData.append("file", selectedFile);
 
     try {
-      await axios.post("http://localhost:5100/uploadexcel", formData, {
+      await axios.post(`${process.env.REACT_APP_URL}/uploadexcel`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -356,15 +388,16 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
       });
 
       alert("File berhasil diunggah!");
+      setSelectedFile(null);
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("Gagal mengunggah file. Hanya admin yang dapat mengunggah data.");
+    
     }
   };
   
   const handleExportExcel = async () => {
     try {
-      const response = await axios.get("http://localhost:5100/download", {
+      const response = await axios.get(`${process.env.REACT_APP_URL}/download`, {
         responseType: "blob", // Pastikan respons dalam bentuk Blob untuk file
         withCredentials: true,
       });
@@ -384,7 +417,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
   };
   const handleDetailClick = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:5100/maps/${id}`);
+      const response = await axios.get(`${process.env.REACT_APP_URL}/maps/${id}`);
       if (response.status === 200) {
         setSelectedItem(response.data); // Setel data detail termasuk koordinat
         setModalOpen(true); // Tampilkan modal dengan detail data
@@ -398,21 +431,32 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
       setModalOpen(true);
     }
   };
-  
- 
 
-  // const getUser = async(req,res)=>{
-  //   try {
-  //     await axios.get(`http://localhost:5100/user`)
 
-  //   } catch (error) {
-      
-  //   }
-  // }
+  //foto 
+  const handleFotoClick = async (id) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_URL}/getquestionnaires/${id}`);
+      if (response.data && response.data.fotos && response.data.fotos.length > 0) {
+        // Use the path directly as returned from the backend
+        setPhotoUrl(`${process.env.REACT_APP_URL}/${response.data.fotos[0].foto_rumah}`);
+        setShowPhotoModal(true);
+      } else {
+        alert('No photo available for this entry.');
+      }
+    } catch (error) {
+      console.error('Error fetching photo', error);
+    }
+  };
+
+  const handleClosePhotoModal = () => {
+    setShowPhotoModal(false);
+    setPhotoUrl('');
+  };
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/me", {
+        const response = await axios.get(`${process.env.REACT_APP_URL}/me`, {
           withCredentials: true
         });
   
@@ -437,26 +481,6 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
     <Container fluid className="data-recap-page p-4">
        <MyNavbar />
       <Row className="justify-content-center">
-        {/* <Col md="auto">
-          <h2 className="data-recap-title text-center">Rekapitulasi Data Perumahan</h2>
-        </Col>
-      </Row>
-      <Row className="justify-content-center my-3">
-        <Button
-          color="danger"
-          className="btn-logout"
-          onClick={async () => {
-            try {
-              await axios.delete("http://localhost:5100/logout", { withCredentials: true });
-              sessionStorage.clear();
-              navigate("/login");
-            } catch (error) {
-              console.error("Error during logout", error);
-            }
-          }}
-        >
-          Logout
-        </Button> */}
       </Row>
       {error && (
         <Row className="justify-content-center">
@@ -540,6 +564,7 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
                   <th>Kecamatan</th>
                   <th>Kategori</th>
                   <th>Detail</th>
+                  <th>Foto</th>
                   <th>Aksi</th>
                   <th>Maps</th>
                 </tr>
@@ -556,38 +581,40 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
                       <td>{item.kecamatan}</td>
                       <td>{item.kategori}</td>
                       <td>
-                        <FaEye
-                          onClick={() => handleToggleExpand(index)}
-                          style={{ cursor: "pointer", color: "#007bff" }}
-                        />
-                      </td>
-                      <td>
-                        <div className="d-flex justify-content-between">
-                          <Button
-                            variant="outline-primary"
-                            onClick={() => handleEditClick(item)}
-                            size="sm"
-                            style={{ display: "inline-flex", alignItems: "center" }}
-                          >
-                            <FaEdit style={{ marginRight: "5px" }} /> Edit
-                          </Button>
-
-                          <Button
-                            variant="outline-danger"
-                            onClick={() => deleteData(item.id)}
-                            size="sm"
-                            style={{ display: "inline-flex", alignItems: "center" }}
-                          >
-                            <FaTrash style={{ marginRight: "5px" }} /> Delete
-                          </Button>
-                        </div>
-                      </td>
-                      <td>
-                        <FaEye
-                          onClick={() => handleDetailClick(item.id)}
-                          style={{ cursor: "pointer" }}
-                        />
-                      </td>
+          <FaEye
+            onClick={() => handleToggleExpand(index)}
+            style={{ cursor: "pointer", color: "#007bff" }}
+          />
+        </td>
+        <td>
+                <FaEye style={{ cursor: "pointer" }} onClick={() => handleFotoClick(item.id)} />
+              </td>
+        <td>
+          <div className="d-flex justify-content-between">
+            <Button
+              variant="outline-primary"
+              onClick={() => handleEditClick(item)}
+              size="sm"
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
+              <FaEdit style={{ marginRight: "5px" }} /> Edit
+            </Button>
+            <Button
+              variant="outline-danger"
+              onClick={() => deleteData(item.id)}
+              size="sm"
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
+              <FaTrash style={{ marginRight: "5px" }} /> Delete
+            </Button>
+          </div>
+        </td>
+        <td>
+          <FaEye
+            onClick={() => handleDetailClick(item.id)}
+            style={{ cursor: "pointer" }}
+          />
+        </td>
                     </tr>
                     {expandedRows.includes(index) && (
                       <tr>
@@ -664,58 +691,77 @@ const DataRecapComponent = ({ onStatisticsUpdate }) => {
                 ))}
               </tbody>
               <tr>
-<Modal isOpen={modalOpen} toggle={() => setModalOpen(false)}>
-<ModalHeader toggle={() => setModalOpen(false)}>Detail Lokasi</ModalHeader>
-<ModalBody>
-{selectedItem && selectedItem.titikKoordinatRumah ? (
-(() => {
-const [latitude, longitude] = selectedItem.titikKoordinatRumah
-.split(',')
-.map(coord => parseFloat(coord.trim()));
-if (isNaN(latitude) || isNaN(longitude)) {
-return <p>Koordinat tidak valid.</p>;
-}
+        <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)}>
+            <ModalHeader toggle={() => setModalOpen(false)}>Detail Lokasi</ModalHeader>
+            <ModalBody>
+  {selectedItem && (selectedItem.titikKoordinatRumah || selectedItem.manualTitikKoordinatRumah) ? (
+    (() => {
+      // Pilih koordinat yang ingin digunakan
+      const koordinat = selectedItem.titikKoordinatRumah || selectedItem.manualTitikKoordinatRumah;
+      const [latitude, longitude] = koordinat
+        .split(',')
+        .map(coord => parseFloat(coord.trim()));
+      
+      if (isNaN(latitude) || isNaN(longitude)) {
+        return <p>Koordinat tidak valid.</p>;
+      }
 
-return (
-<>
-<p><strong>Kecamatan:</strong> {selectedItem.kecamatan}</p>
-<p><strong>Desa/Kelurahan:</strong> {selectedItem.desaKelurahan}</p>
-<p><strong>Koordinat:</strong> {selectedItem.titikKoordinatRumah}</p>
+      return (
+        <>
+          <p><strong>Kecamatan:</strong> {selectedItem.kecamatan}</p>
+          <p><strong>Desa/Kelurahan:</strong> {selectedItem.desaKelurahan}</p>
+          <p><strong>Koordinat:</strong> {koordinat}</p>
 
-{/* Tampilkan MapContainer dengan koordinat yang sudah dipisah */}
-<MapContainer
-center={[latitude, longitude]}
-zoom={15}
-style={{ height: '400px', width: '100%' }}
->
-{/* TileLayer untuk background peta */}
-<TileLayer
-url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-/>
-<Marker position={[latitude, longitude]}>
-{/* Optional: Add Popup if needed */}
-<Popup>
-Koordinat: {latitude}, {longitude}
-</Popup>
-</Marker>
-</MapContainer>
-</>
-);
-})()
-) : (
-<p>Koordinat tidak tersedia</p>
-)}
+          {/* Tampilkan MapContainer dengan koordinat yang sudah dipisah */}
+          <MapContainer
+            center={[latitude, longitude]}
+            zoom={15}
+            style={{ height: '400px', width: '100%' }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <Marker position={[latitude, longitude]}>
+              <Popup>
+                Koordinat: {latitude}, {longitude}
+              </Popup>
+            </Marker>
+          </MapContainer>
+        </>
+      );
+    })()
+  ) : (
+    <p>Koordinat tidak tersedia</p>
+  )}
 </ModalBody>
 
 
-<ModalFooter>
-  <Button color="secondary" onClick={() => setModalOpen(false)}>Tutup</Button>
-</ModalFooter>
-</Modal>
+            <ModalFooter>
+              <Button color="secondary" onClick={() => setModalOpen(false)}>Tutup</Button>
+            </ModalFooter>
+        </Modal>
 
   </tr>
+  
             </Table>
+                  {/* Photo Modal */}
+      <Modal isOpen={showPhotoModal} toggle={handleClosePhotoModal}>
+        <ModalHeader toggle={handleClosePhotoModal}>Foto Rumah</ModalHeader>
+        <ModalBody>
+          {photoUrl ? (
+            <img src={photoUrl} alt="Foto Rumah" className="img-fluid" />
+          ) : (
+            <p>Foto tidak tersedia</p>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleClosePhotoModal}>Close</Button>
+        </ModalFooter>
+      </Modal>
+
+             
+
             {selectedItem && (
         <Modal isOpen={isModalOpen} toggle={handleModalToggle}>
           <ModalHeader toggle={handleModalToggle}>Edit Data</ModalHeader>

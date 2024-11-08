@@ -10,7 +10,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
     // Cek status session dengan memanggil endpoint server
     const checkSession = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/me", { withCredentials: true });
+        const response = await axios.get(`${process.env.REACT_APP_URL}/me`, { withCredentials: true });
         
         if (response.status === 200) {
           setIsAuthenticated(true);

@@ -21,7 +21,7 @@ function PetaPerumahan() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5100/maps");
+        const response = await fetch(`${process.env.REACT_APP_URL}/maps`);
         if (!response.ok) throw new Error("Error fetching data");
         const result = await response.json();
         setData(result);
