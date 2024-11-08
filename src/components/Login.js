@@ -64,13 +64,8 @@ function Login() {
         <label>
           Password:
           <div className="password-container">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Masukkan password"
-              required
-            />
+          <input type="password" placeholder="Masukkan password" required value autocomplete="current-password" />
+
             <button
               type="button"
               className="password-toggle"
