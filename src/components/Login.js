@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
+import axios from "axios";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -13,31 +14,28 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: "include",
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_URL}/login`,
+        { username, password },
+        { withCredentials: true }
+      );
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
+      if (response.status === 200) {
         if (data.role === "admin") {
           navigate("/admin/dashboard");
         } else if (data.role === "surveyor") {
           navigate("/surveyor/dashboard");
         } else {
-          alert("User type is not recognized");
+          alert("Tipe pengguna tidak dikenali");
         }
       } else {
-        console.error("Login failed:", data);
+        console.error("Login gagal:", data);
         alert(data.message || "Username atau Password salah");
       }
     } catch (error) {
-      console.error("Error during login:", error);
+      console.error("Error saat login:", error);
       alert("Terjadi kesalahan, silakan coba lagi.");
     }
   };
@@ -55,13 +53,29 @@ function Login() {
       <form onSubmit={handleLogin}>
         <label>
           Username:
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Masukkan username" required />
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Masukkan username"
+            required
+          />
         </label>
         <label>
           Password:
           <div className="password-container">
-            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Masukkan password" required />
-            <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Masukkan password"
+              required
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+            >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
