@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardWidget from "../components/DashboardWidget";
-import axios from "axios";
+import axios from "../api";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-// import "./SurveyorDashboard.css";
-import '../pages/SurveyorDashboard.css'
+import '../pages/SurveyorDashboard.css';
 import MyNavbar from "../map/Navbar";
 
-// Registrasi komponen Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function AdminDashboard() {
@@ -23,14 +21,9 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchRekapData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_URL}/filter`, {
-          withCredentials: true
-        });
-  
+        const response = await axios.get('/filter');
         if (response.status === 200) {
-         
           const combinedData = [...response.data.layakHuni, ...response.data.tidakLayakHuni];
-          
           const calculatedStatistics = calculateStatistics(combinedData);
           setStatistics(calculatedStatistics);
         } else {
@@ -42,32 +35,27 @@ function AdminDashboard() {
         alert("Terjadi kesalahan jaringan atau server. Silakan coba lagi nanti.");
       }
     };
-  
+
     fetchRekapData();
   }, [navigate]);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_URL}/me`, {
-          withCredentials: true
-        });
-  
+        const response = await axios.get('/me');
         if (response.status === 200) {
           setUsername(response.data.username);
         } else {
-          // Jika status bukan 200, berarti sesi telah habis, maka redirect ke login
           navigate("/login");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        // Jika terjadi error (misalnya session expired), redirect ke login
         navigate("/login");
       }
     };
-  
+
     fetchUser();
   }, [navigate]);
-  
 
   const calculateStatistics = (data) => {
     const stats = {
@@ -100,9 +88,14 @@ function AdminDashboard() {
     return stats;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await axios.delete('/logout');
+      sessionStorage.clear();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error during logout", error);
+    }
   };
 
   const data = {
@@ -136,9 +129,9 @@ function AdminDashboard() {
 
   return (
     <div className="dashboard">
-       <header>
-    <h2>Welcome, {username}</h2> 
-  </header>
+      <header>
+        <h2>Welcome, {username}</h2>
+      </header>
       <main>
         <h2>Dashboard</h2>
         <div className="dashboard-widgets">
@@ -149,20 +142,7 @@ function AdminDashboard() {
               <div className="quick-actions">
                 <button onClick={() => navigate("/recap")}>Rekapitulasi</button>
                 <button onClick={() => navigate("/questionnaire")}>Input Data</button>
-                <button
-                  color="danger"
-                  className="btn-logout"
-                  onClick={async () => {
-                    try {
-                      
-                      await axios.delete(`${process.env.REACT_APP_URL}/logout`,{ withCredentials: true });
-                      sessionStorage.clear(); 
-                      navigate("/login");
-                    } catch (error) {
-                      console.error("Error during logout", error);
-                    }
-                  }}
-                >
+                <button color="danger" className="btn-logout" onClick={handleLogout}>
                   Logout
                 </button>
               </div>
