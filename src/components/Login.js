@@ -4,6 +4,8 @@ import "./Login.css";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import axios from "axios";
 
+axios.defaults.withCredentials = true; // Set globally to handle cookies
+
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +33,6 @@ function Login() {
           alert("Tipe pengguna tidak dikenali");
         }
       } else {
-        console.error("Login gagal:", data);
         alert(data.message || "Username atau Password salah");
       }
     } catch (error) {
@@ -64,8 +65,14 @@ function Login() {
         <label>
           Password:
           <div className="password-container">
-          <input type="password" placeholder="Masukkan password" required value autocomplete="current-password" />
-
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Masukkan password"
+              required
+              autoComplete="current-password"
+            />
             <button
               type="button"
               className="password-toggle"
